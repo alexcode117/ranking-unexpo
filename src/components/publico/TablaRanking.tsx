@@ -116,7 +116,7 @@ export function TablaRanking({
         <p>
           {modo === "seccion"
             ? `${filas.length} estudiantes. Se han evaluado ${formatear(evaluado)} de 100 puntos.`
-            : `${filas.length} estudiantes. Ordenados por rendimiento: puntos obtenidos entre puntos evaluados en su sección.`}
+            : `${filas.length} estudiantes de todas las secciones. Como cada sección va a su ritmo, se comparan por rendimiento: el porcentaje de los puntos evaluados que ha obtenido cada uno.`}
         </p>
       </div>
       <ol className="ranking">
@@ -124,7 +124,7 @@ export function TablaRanking({
           <span className="num">Puesto</span>
           <span>Estudiante</span>
           <span>{modo === "seccion" ? "Avance sobre 100 pts" : "Avance sobre lo evaluado"}</span>
-          <span className="pts">{modo === "seccion" ? "Puntos" : "Rendimiento (%)"}</span>
+          <span className="pts">{modo === "seccion" ? "Puntos" : "Rendimiento"}</span>
           <span />
         </li>
         {filas.map((f, i) => {
@@ -170,10 +170,10 @@ export function TablaRanking({
                   <Cota valor={f.puntos} maximo={f.evaluado} indice={indice} />
                 )}
                 <span className="pts cifra">
-                  {modo === "seccion" ? <Decimal valor={f.puntos} /> : <Decimal valor={f.rendimiento * 100} />}
+                  {modo === "seccion" ? <Decimal valor={f.puntos} /> : porcentaje(f.rendimiento)}
                   {modo === "materia" && (
                     <small>
-                      {formatear(f.puntos)} de {formatear(f.evaluado)}
+                      {formatear(f.puntos)} de {formatear(f.evaluado)} pts
                     </small>
                   )}
                 </span>
