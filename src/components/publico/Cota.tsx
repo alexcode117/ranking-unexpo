@@ -1,32 +1,30 @@
-import { formatear } from "@/lib/ranking";
-
-// Barra de progreso dibujada como una cota de plano: |◄──── valor ────►|
-// La línea punteada de fondo marca el total posible.
+// Barra de avance dibujada como una cota de plano: |──────|
+// La línea punteada de fondo es el total posible; `marca` señala con un trazo
+// corto hasta dónde se ha evaluado (en la misma escala que `valor`).
 export function Cota({
   valor,
   maximo,
-  etiqueta,
+  marca,
   indice,
 }: {
   valor: number;
   maximo: number;
-  etiqueta?: string;
+  marca?: number;
   indice: number;
 }) {
-  const fraccion = maximo > 0 ? Math.min(valor / maximo, 1) : 0;
-  const x = Math.max(fraccion * 100, 1.5);
+  const aX = (v: number) => (maximo > 0 ? Math.min(v / maximo, 1) * 100 : 0);
+  const x = Math.max(aX(valor), 1.5);
   return (
-    <div className="cota" style={{ ["--i" as string]: indice }}>
-      <span className="valor cifra">
-        {formatear(valor)} <small>de {formatear(maximo)}</small>
-        {etiqueta && <small> ({etiqueta})</small>}
-      </span>
-      <svg viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
-        <line className="guia" x1="0" y1="7" x2="100" y2="7" vectorEffect="non-scaling-stroke" />
-        <line className="tope" x1="0.3" y1="1" x2="0.3" y2="13" vectorEffect="non-scaling-stroke" />
+    <div className="cota" style={{ ["--i" as string]: indice }} aria-hidden="true">
+      <svg viewBox="0 0 100 12" preserveAspectRatio="none">
+        <line className="guia" x1="0" y1="6" x2="100" y2="6" vectorEffect="non-scaling-stroke" />
+        {marca !== undefined && marca < maximo && (
+          <line className="marca" x1={aX(marca)} y1="2" x2={aX(marca)} y2="10" vectorEffect="non-scaling-stroke" />
+        )}
+        <line className="tope" x1="0.3" y1="1" x2="0.3" y2="11" vectorEffect="non-scaling-stroke" />
         <g className="trazo">
-          <line className="linea" x1="0" y1="7" x2={x} y2="7" vectorEffect="non-scaling-stroke" />
-          <line className="tope" x1={x} y1="1" x2={x} y2="13" vectorEffect="non-scaling-stroke" />
+          <line className="linea" x1="0" y1="6" x2={x} y2="6" vectorEffect="non-scaling-stroke" />
+          <line className="tope" x1={x} y1="1" x2={x} y2="11" vectorEffect="non-scaling-stroke" />
         </g>
       </svg>
     </div>

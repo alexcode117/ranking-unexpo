@@ -315,7 +315,7 @@ select {
   padding: 20px 24px;
   border: 1.5px solid var(--rojo);
   background: var(--rojo-suave);
-  margin-bottom: 40px;
+  margin-bottom: 56px;
   animation: desplegar 0.35s ease-out both;
 }
 
@@ -401,6 +401,17 @@ select {
   stroke-linecap: round;
 }
 
+.texto-mina {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rango-grande .texto-mina {
+  display: block;
+}
+
 .mina b {
   font-family: var(--f-rotulo), sans-serif;
   font-weight: 600;
@@ -432,7 +443,7 @@ select {
 
 /* ---------- Escala del lápiz: distribución del grupo ---------- */
 .escala {
-  margin: 0 0 40px;
+  margin: 0 0 56px;
 }
 
 .escala h2,
@@ -562,7 +573,7 @@ select {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   align-items: end;
-  margin: 12px 0 40px;
+  margin: 16px 0 56px;
 }
 
 .escalon {
@@ -649,107 +660,224 @@ select {
   }
 }
 
-/* ---------- Tabla de ranking ---------- */
+/* ---------- Tabla de ranking ----------
+   Escala tipográfica de la lista (razón ≈ 1,25): 13 · 15 · 17 · 21 · 26
+   Cifras en Barlow Condensed y alineadas a la derecha; nombres en Barlow. */
 .tabla-titulo {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
-  gap: 4px 16px;
-  margin-bottom: 8px;
+  gap: 4px 24px;
+  margin-bottom: 12px;
 }
 
 .tabla-titulo h2 {
   font-family: var(--f-rotulo), sans-serif;
   font-weight: 500;
   font-size: 26px;
+  line-height: 1.15;
   color: var(--blanco);
   margin: 0;
 }
 
 .tabla-titulo p {
   margin: 0;
+  max-width: 60ch;
   color: var(--trazo);
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .ranking {
+  --col-puesto: 52px;
+  --col-pts: 88px;
+  --col-tend: 40px;
   list-style: none;
   margin: 0;
   padding: 0;
   border-top: 1.5px solid var(--tiza);
 }
 
+/* Retícula compartida por encabezado y filas */
 .fila {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1.6fr) 118px minmax(0, 1.3fr) 210px;
-  gap: 14px;
+  grid-template-columns:
+    var(--col-puesto) minmax(0, 2fr) minmax(96px, 1.6fr)
+    var(--col-pts) var(--col-tend);
+  column-gap: 20px;
   align-items: center;
-  padding: 11px 8px;
-  border-bottom: 1px dashed rgb(227 238 247 / 0.2);
+  min-height: 64px;
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid rgb(227 238 247 / 0.1);
   scroll-margin-top: 140px;
 }
 
-.fila.encabezado {
-  font-size: 13px;
-  color: var(--trazo);
-  border-bottom: 1px solid var(--tiza);
-  padding-top: 8px;
-  padding-bottom: 8px;
+.fila:hover {
+  background: rgb(227 238 247 / 0.04);
 }
 
-.fila.tu-fila {
+.fila.encabezado {
+  min-height: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--trazo);
+  border-bottom: 0;
+}
+
+.fila.encabezado:hover {
+  background: none;
+}
+
+.fila.tu-fila,
+.fila.tu-fila:hover {
   background: var(--rojo-suave);
   box-shadow: inset 3px 0 0 var(--rojo);
 }
 
+/* Puesto: cifra grande, alineada a la derecha para que 9 y 19 coincidan */
 .fila .num {
+  justify-self: end;
   font-family: var(--f-rotulo), sans-serif;
-  font-size: 20px;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--blanco);
+}
+
+.fila.encabezado .num {
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 13px;
   color: var(--trazo);
 }
 
+/* En un empate el puesto se repite atenuado */
+.fila .num.empate {
+  color: var(--trazo);
+  opacity: 0.55;
+}
+
 .fila .quien {
+  display: grid;
+  gap: 3px;
   min-width: 0;
 }
 
 .fila .nombre {
+  font-size: 17px;
   font-weight: 500;
+  line-height: 1.25;
   color: var(--blanco);
   overflow-wrap: anywhere;
 }
 
 .fila .tu {
   font-family: var(--f-mano), cursive;
-  color: var(--rojo);
-  margin-left: 8px;
+  font-weight: 400;
   font-size: 15px;
+  color: var(--rojo);
+  margin-left: 10px;
 }
 
-.fila .ced {
-  font-size: 14px;
-  color: var(--tiza);
+.fila .dato {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 14px;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--trazo);
 }
 
-.fila .sec {
+/* Puntos: el dato principal de la fila */
+.fila .pts {
+  justify-self: end;
+  text-align: right;
+  font-family: var(--f-rotulo), sans-serif;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.05;
+  color: var(--blanco);
+}
+
+.fila .pts .dec {
+  display: inline-block;
+  min-width: 0.95em;
+  text-align: left;
+}
+
+.fila .pts small {
   display: block;
+  margin-top: 3px;
+  font-family: var(--f-texto), sans-serif;
+  font-weight: 400;
   font-size: 13px;
   color: var(--trazo);
 }
 
-.fila .rango {
+.fila.encabezado .pts {
+  white-space: nowrap;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--trazo);
+}
+
+/* Corte por rango: línea de trazo y punto con el rango rotulado */
+.corte {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
+  align-items: baseline;
+  gap: 10px;
+  padding: 22px 12px 8px 0;
+  border-bottom: 1px solid rgb(227 238 247 / 0.1);
 }
 
-/* Cota: la barra de progreso dibujada como acotación de plano */
-.cota {
-  display: grid;
-  gap: 2px;
+.corte b {
+  width: var(--col-puesto);
+  text-align: right;
+  font-family: var(--f-rotulo), sans-serif;
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--blanco);
+  flex: none;
 }
 
+.corte .nombre-corte {
+  margin-left: 10px;
+  font-family: var(--f-rotulo), sans-serif;
+  font-weight: 500;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--tiza);
+  white-space: nowrap;
+}
+
+.corte .raya {
+  flex: 1;
+  align-self: center;
+  height: var(--grosor, 1.5px);
+  min-width: 24px;
+  border-radius: 2px;
+  background-image: linear-gradient(
+    to right,
+    var(--trazo) 0 16px,
+    transparent 16px 20px,
+    var(--trazo) 20px 23px,
+    transparent 23px 27px
+  );
+  background-size: 27px 100%;
+  opacity: 0.75;
+}
+
+.corte .cuantos {
+  font-size: 13px;
+  color: var(--trazo);
+  white-space: nowrap;
+}
+
+/* Cota: la barra de avance dibujada como acotación de plano */
 .cota svg {
   display: block;
   width: 100%;
@@ -759,14 +887,21 @@ select {
 
 .cota .linea,
 .cota .tope {
-  stroke: var(--trazo);
-  stroke-width: 1.2;
+  stroke: var(--tiza);
+  stroke-width: 1.3;
 }
 
 .cota .guia {
-  stroke: rgb(227 238 247 / 0.14);
+  stroke: rgb(227 238 247 / 0.16);
   stroke-width: 1;
   stroke-dasharray: 2 3;
+}
+
+/* Hasta dónde se ha evaluado */
+.cota .marca {
+  stroke: var(--trazo);
+  stroke-width: 1;
+  opacity: 0.8;
 }
 
 /* Único movimiento automático: las cotas se trazan al cargar */
@@ -777,16 +912,6 @@ select {
   animation-delay: calc(0.15s + var(--i, 0) * 20ms);
 }
 
-.cota .valor {
-  font-size: 15px;
-  color: var(--blanco);
-}
-
-.cota .valor small {
-  color: var(--trazo);
-  font-size: 13px;
-}
-
 @keyframes trazar {
   from {
     transform: scaleX(0);
@@ -794,7 +919,9 @@ select {
 }
 
 .tendencia {
+  justify-self: end;
   font-size: 13px;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -807,13 +934,17 @@ select {
 }
 
 @media (max-width: 760px) {
+  .ranking {
+    --col-puesto: 34px;
+  }
   .fila {
-    grid-template-columns: 34px minmax(0, 1fr) auto;
+    grid-template-columns: var(--col-puesto) minmax(0, 1fr) auto;
     grid-template-areas:
-      "num nombre rango"
-      "num cota cota";
-    row-gap: 6px;
-    padding: 12px 4px;
+      "num quien pts"
+      ". cota tend";
+    column-gap: 12px;
+    row-gap: 10px;
+    padding: 14px 4px 14px 0;
   }
   .fila.encabezado {
     display: none;
@@ -821,32 +952,34 @@ select {
   .fila .num {
     grid-area: num;
     align-self: start;
+    font-size: 22px;
   }
   .fila .quien {
-    grid-area: nombre;
+    grid-area: quien;
   }
-  .fila .quien .ced {
-    display: block;
-    font-size: 13px;
-    color: var(--trazo);
-  }
-  .fila > .ced {
-    display: none;
+  .fila .nombre {
+    font-size: 16px;
   }
   .fila .cota {
     grid-area: cota;
   }
-  .fila .rango {
-    grid-area: rango;
+  .fila .pts {
+    grid-area: pts;
+    align-self: start;
+    font-size: 21px;
   }
-  .fila .rango .nombre-rango {
-    display: none;
+  .fila .tendencia {
+    grid-area: tend;
   }
-}
-
-@media (min-width: 761px) {
-  .fila .quien .ced {
-    display: none;
+  .corte {
+    padding-right: 4px;
+  }
+  .corte b {
+    font-size: 19px;
+  }
+  .corte .nombre-corte {
+    margin-left: 2px;
+    font-size: 16px;
   }
 }
 

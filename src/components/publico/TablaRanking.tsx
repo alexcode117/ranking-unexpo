@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { Fragment, useEffect, useState, useTransition } from "react";
 import { buscarCedula } from "@/app/acciones";
 import { distribucion, formatear, porcentaje, type FilaRanking } from "@/lib/ranking";
 import type { Tema } from "@/lib/temas";
@@ -29,6 +29,7 @@ export function TablaRanking({
   const [aviso, setAviso] = useState("");
   const [buscando, iniciar] = useTransition();
   const tuya = filas.find((f) => f.estudiante_id === tuId) ?? null;
+  const conteo = new Map(distribucion(filas, tema).map((d) => [d.rango.codigo, d.cantidad]));
 
   const verFila = (id: string) =>
     requestAnimationFrame(() =>
@@ -120,39 +121,65 @@ export function TablaRanking({
       </div>
       <ol className="ranking">
         <li className="fila encabezado" aria-hidden="true">
-          <span>Puesto</span>
+          <span className="num">Puesto</span>
           <span>Estudiante</span>
-          <span>Cédula</span>
-          <span>{modo === "seccion" ? "Puntos acumulados" : "Puntos y rendimiento"}</span>
-          <span>Rango</span>
+          <span>{modo === "seccion" ? "Avance sobre 100 pts" : "Avance sobre lo evaluado"}</span>
+          <span className="pts">{modo === "seccion" ? "Puntos" : "Rendimiento (%)"}</span>
+          <span />
         </li>
         {filas.map((f, i) => {
           const esTuya = f.estudiante_id === tuId;
+          const anterior = filas[i - 1];
+          const empate = anterior?.posicion === f.posicion;
           const indice = Math.min(i, 30);
           return (
-            <li
-              key={`${f.seccion_id}-${f.estudiante_id}`}
-              id={`fila-${f.estudiante_id}`}
-              className={`fila${esTuya ? " tu-fila" : ""}`}
-            >
-              <span className="num">{f.posicion}</span>
-              <span className="quien">
-                <span className="nombre">{f.nombre}</span>
-                {esTuya && <span className="tu">tú</span>}
-                {modo === "materia" && <span className="sec">Sección {f.seccion}</span>}
-                <span className="ced cifra">{f.cedula}</span>
-              </span>
-              <span className="ced cifra">{f.cedula}</span>
-              {modo === "seccion" ? (
-                <Cota valor={f.puntos} maximo={100} indice={indice} />
-              ) : (
-                <Cota valor={f.puntos} maximo={f.evaluado} etiqueta={porcentaje(f.rendimiento)} indice={indice} />
+            <Fragment key={`${f.seccion_id}-${f.estudiante_id}`}>
+              {/* Línea de corte al cambiar de rango, como el corte A–A de un plano */}
+              {anterior?.rango.codigo !== f.rango.codigo && (
+                <li className="corte" data-rango={f.rango.codigo}>
+                  <b>{f.rango.codigo}</b>
+                  <span className="nombre-corte">{f.rango.nombre}</span>
+                  {/* La raya tiene el grosor que deja la mina de ese rango */}
+                  <span
+                    className="raya"
+                    aria-hidden="true"
+                    style={{ ["--grosor" as string]: `${Math.max(1, f.rango.trazo * 0.55)}px` }}
+                  />
+                  <span className="cuantos">
+                    {conteo.get(f.rango.codigo)} {conteo.get(f.rango.codigo) === 1 ? "estudiante" : "estudiantes"}
+                  </span>
+                </li>
               )}
-              <span className="rango">
-                <Mina rango={f.rango} conNombre />
+              <li id={`fila-${f.estudiante_id}`} className={`fila${esTuya ? " tu-fila" : ""}`}>
+                <span className={`num${empate ? " empate" : ""}`} title={empate ? "Empatado con el anterior" : undefined}>
+                  {f.posicion}
+                </span>
+                <span className="quien">
+                  <span className="nombre">
+                    {f.nombre}
+                    {esTuya && <span className="tu">tú</span>}
+                  </span>
+                  <span className="dato">
+                    <span className="cifra">{f.cedula}</span>
+                    {modo === "materia" && <span>Sección {f.seccion}</span>}
+                  </span>
+                </span>
+                {modo === "seccion" ? (
+                  <Cota valor={f.puntos} maximo={100} marca={f.evaluado} indice={indice} />
+                ) : (
+                  <Cota valor={f.puntos} maximo={f.evaluado} indice={indice} />
+                )}
+                <span className="pts cifra">
+                  {modo === "seccion" ? <Decimal valor={f.puntos} /> : <Decimal valor={f.rendimiento * 100} />}
+                  {modo === "materia" && (
+                    <small>
+                      {formatear(f.puntos)} de {formatear(f.evaluado)}
+                    </small>
+                  )}
+                </span>
                 <Tendencia valor={f.tendencia} />
-              </span>
-            </li>
+              </li>
+            </Fragment>
           );
         })}
       </ol>
@@ -270,8 +297,20 @@ function Escala({ filas, tema, tuRango }: { filas: FilaRanking[]; tema: Tema; tu
   );
 }
 
+// Cifra alineada por la coma: la parte decimal ocupa siempre el mismo ancho.
+function Decimal({ valor }: { valor: number }) {
+  const [entero, decimales] = formatear(valor).split(",");
+  return (
+    <span className="decimal">
+      {entero}
+      <span className="dec">{decimales ? `,${decimales}` : ""}</span>
+    </span>
+  );
+}
+
 function Tendencia({ valor }: { valor: number | null }) {
-  if (!valor) return null;
+  // Siempre ocupa su columna para que las filas queden alineadas.
+  if (!valor) return <span className="tendencia" />;
   const sube = valor > 0;
   const texto = `${sube ? "Subió" : "Bajó"} ${Math.abs(valor)} ${Math.abs(valor) === 1 ? "puesto" : "puestos"} con la última evaluación`;
   return (
